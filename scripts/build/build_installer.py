@@ -165,6 +165,9 @@ def build_macos_dmg(app_bundle_path: Path, dmg_output_path: Path) -> None:
     if dmg_output_path.exists():
         dmg_output_path.unlink()
 
+    # Clear any quarantine or unwanted extended attributes
+    subprocess.run(["xattr", "-cr", str(app_bundle_path)], check=False)
+
     # Ad-hoc codesign the .app bundle
     subprocess.run(
         ["codesign", "--force", "--deep", "--sign", "-", str(app_bundle_path)],
@@ -194,6 +197,9 @@ def build_macos_dmg(app_bundle_path: Path, dmg_output_path: Path) -> None:
             str(dmg_output_path),
         ]
         subprocess.run(cmd, check=True)
+
+    # Ad-hoc codesign the DMG itself
+    subprocess.run(["codesign", "--force", "--sign", "-", str(dmg_output_path)], check=False)
 
     print(f"[OK] Created macOS DMG installer: {dmg_output_path}")
 

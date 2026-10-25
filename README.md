@@ -20,6 +20,18 @@ Built with a high-performance **Vue 3 + Tailwind CSS** dark glassmorphism interf
 
 > **Automated Builds:** Every commit pushed to `main` triggers automated GitHub Actions builds that compile, test, and release fresh version-pinned DMG and EXE installers to the [Releases page](https://github.com/paras97verma/stream-cloner/releases).
 
+### 🍎 macOS Quick Install (1-Line Command)
+You can install Stream Cloner directly with a single Terminal command (bypasses browser quarantine automatically):
+```bash
+curl -fsSL https://raw.githubusercontent.com/paras97verma/stream-cloner/main/install.sh | bash
+```
+
+> **macOS Gatekeeper Note:** If you downloaded the `.dmg` via browser and macOS displays *"This Mac could not verify the app, so nothing was installed"*, macOS attaches a quarantine flag to files downloaded from web browsers. Simply run:
+> ```bash
+> xattr -cr ~/Downloads/Stream-Cloner-macOS.dmg
+> ```
+> Or open **System Settings > Privacy & Security** and click **"Open Anyway"**.
+
 ---
 
 ## Key Features
