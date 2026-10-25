@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="sc-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb" />
+      <stop offset="50%" stop-color="#4f46e5" />
+      <stop offset="100%" stop-color="#7c3aed" />
+    </linearGradient>
+    <linearGradient id="sc-glow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.45" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.1" />
+    </linearGradient>
+    <filter id="sc-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2.5" stdDeviation="2.5" flood-color="#000000" flood-opacity="0.45" />
+    </filter>
+  </defs>
+
+  <!-- Base Squircle -->
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#sc-grad)" />
+  <rect x="2" y="2" width="60" height="60" rx="14" stroke="url(#sc-glow)" stroke-width="1.6" />
+
+  <!-- Source Stream Frame (Top Left) -->
+  <g filter="url(#sc-shadow)">
+    <rect x="9" y="10" width="30" height="22" rx="5" fill="#ffffff" fill-opacity="0.22" stroke="#ffffff" stroke-width="2" stroke-opacity="0.85" />
+    <!-- Media Play Glyph -->
+    <polygon points="20,16 20,26 29,21" fill="#ffffff" />
+  </g>
+
+  <!-- Cloned Output Frame (Bottom Right - Overlapping) -->
+  <g filter="url(#sc-shadow)">
+    <rect x="23" y="22" width="31" height="31" rx="7" fill="#0b0f19" fill-opacity="0.88" stroke="#60a5fa" stroke-width="2.2" />
+    <!-- Download Stream Arrow -->
+    <path d="M38.5 28.5V42M33 36.5L38.5 42L44 36.5" stroke="#38bdf8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+    <!-- Stream Tray Base Line -->
+    <path d="M30 46H47" stroke="#a78bfa" stroke-width="2.4" stroke-linecap="round" />
+  </g>
+</svg>
