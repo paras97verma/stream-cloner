@@ -225,7 +225,8 @@ def main() -> None:
     web_dist = SRC_DIR / "stream_cloner" / "web" / "dist"
     if not (web_dist / "index.html").exists():
         print("[*] Compiling frontend assets before packaging...")
-        subprocess.run(["npm", "--prefix", str(ROOT_DIR / "frontend"), "run", "build"], check=True)
+        npm_bin = shutil.which("npm") or ("npm.cmd" if IS_WINDOWS else "npm")
+        subprocess.run([npm_bin, "run", "build"], cwd=str(ROOT_DIR / "frontend"), check=True, shell=IS_WINDOWS)
 
     pyinstaller_cmd = [
         sys.executable,
