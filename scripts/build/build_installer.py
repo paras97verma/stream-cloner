@@ -282,6 +282,18 @@ def main() -> None:
         dmg_path = DIST_DIR / "Stream-Cloner-macOS.dmg"
         if app_bundle.exists():
             build_macos_dmg(app_bundle, dmg_path)
+            version_str = os.environ.get("STREAM_CLONER_VERSION")
+            if not version_str:
+                try:
+                    sys.path.insert(0, str(SRC_DIR))
+                    import stream_cloner
+                    version_str = getattr(stream_cloner, "__version__", None)
+                except Exception:
+                    pass
+            if version_str:
+                ver_dmg = DIST_DIR / f"Stream-Cloner-v{version_str}-macOS.dmg"
+                shutil.copy2(dmg_path, ver_dmg)
+                print(f"  SUCCESS! Versioned DMG    : {ver_dmg}")
             print("=================================================================")
             print(f"  SUCCESS! macOS App Bundle : {app_bundle}")
             print(f"  SUCCESS! macOS DMG File   : {dmg_path}")
@@ -300,6 +312,18 @@ def main() -> None:
         subprocess.run(pyinstaller_cmd, check=True)
 
         exe_path = DIST_DIR / "Stream-Cloner-Windows.exe"
+        version_str = os.environ.get("STREAM_CLONER_VERSION")
+        if not version_str:
+            try:
+                sys.path.insert(0, str(SRC_DIR))
+                import stream_cloner
+                version_str = getattr(stream_cloner, "__version__", None)
+            except Exception:
+                pass
+        if version_str:
+            ver_exe = DIST_DIR / f"Stream-Cloner-v{version_str}-Windows.exe"
+            shutil.copy2(exe_path, ver_exe)
+            print(f"  SUCCESS! Versioned EXE    : {ver_exe}")
         print("=================================================================")
         print(f"  SUCCESS! Standalone Windows EXE: {exe_path}")
         print("=================================================================")

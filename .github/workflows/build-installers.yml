@@ -1,60 +1,159 @@
-name: Build macOS (.dmg) & Windows (.exe) Installers
+name: Build & Release Installers
 
 on:
-  workflow_dispatch:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
     tags: [ 'v*' ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build-macos-dmg:
+    name: Build macOS DMG
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
+
       - name: Build Vue.js Frontend
         run: |
           npm --prefix frontend install
           npm --prefix frontend run build
-      - uses: actions/setup-python@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
       - name: Install dependencies & build macOS DMG
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install -U "yt-dlp[default]" deno yt-dlp-ejs pyinstaller
+          pip install -U pyinstaller
           python scripts/build/build_installer.py
-      - name: Upload macOS DMG Installer
+
+      - name: Upload macOS DMG Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Stream-Cloner-macOS-DMG
-          path: dist/Stream-Cloner-macOS.dmg
+          name: macos-dmg
+          path: dist/*.dmg
+          if-no-files-found: error
 
   build-windows-exe:
+    name: Build Windows EXE
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
+
       - name: Build Vue.js Frontend
         run: |
           npm --prefix frontend install
           npm --prefix frontend run build
-      - uses: actions/setup-python@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
       - name: Install dependencies & build Windows EXE
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install -U "yt-dlp[default]" deno yt-dlp-ejs pyinstaller
+          pip install -U pyinstaller
           python scripts/build/build_installer.py
-      - name: Upload Windows EXE Installer
+
+      - name: Upload Windows EXE Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Stream-Cloner-Windows-EXE
-          path: dist/Stream-Cloner-Windows.exe
+          name: windows-exe
+          path: dist/*.exe
+          if-no-files-found: error
+
+  publish-release:
+    name: Publish Versioned GitHub Release
+    needs: [build-macos-dmg, build-windows-exe]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download all installer artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Prepare version-pinned release assets & checksums
+        id: prep
+        run: |
+          BASE_VER=$(python3 -c 'import re; print(re.search(r"__version__\s*=\s*[\x22\x27]([^\x22\x27]+)[\x22\x27]", open("src/stream_cloner/__init__.py").read()).group(1))')
+          
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            TAG_NAME="${{ github.ref_name }}"
+          else
+            TAG_NAME="v${BASE_VER}-b${{ github.run_number }}"
+          fi
+
+          echo "RELEASE_TAG=${TAG_NAME}" >> $GITHUB_ENV
+          echo "RELEASE_VERSION=${BASE_VER}" >> $GITHUB_ENV
+
+          mkdir -p dist-release
+          
+          # Move artifacts to release bundle
+          find artifacts/ -type f \( -name "*.dmg" -o -name "*.exe" \) -exec cp {} dist-release/ \;
+
+          # Ensure both canonical and version-pinned files exist
+          if [ -f "dist-release/Stream-Cloner-macOS.dmg" ] && [ ! -f "dist-release/Stream-Cloner-${TAG_NAME}-macOS.dmg" ]; then
+            cp dist-release/Stream-Cloner-macOS.dmg "dist-release/Stream-Cloner-${TAG_NAME}-macOS.dmg"
+          fi
+          if [ -f "dist-release/Stream-Cloner-Windows.exe" ] && [ ! -f "dist-release/Stream-Cloner-${TAG_NAME}-Windows.exe" ]; then
+            cp dist-release/Stream-Cloner-Windows.exe "dist-release/Stream-Cloner-${TAG_NAME}-Windows.exe"
+          fi
+
+          # Generate SHA256 checksums
+          cd dist-release
+          sha256sum * > SHA256SUMS.txt
+          cd ..
+
+          echo "Prepared release assets:"
+          ls -la dist-release/
+
+      - name: Create or Update GitHub Release with Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: "Stream Cloner ${{ env.RELEASE_TAG }}"
+          body: |
+            ## 🚀 Stream Cloner ${{ env.RELEASE_TAG }}
+            
+            Standalone high-performance YouTube 4K/8K media cloner, batch downloader, and audio extraction studio.
+
+            ### 📦 Direct Downloads
+            | Platform | File | Architecture | Description |
+            | :--- | :--- | :--- | :--- |
+            | **macOS** | [**Stream-Cloner-macOS.dmg**](https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_TAG }}/Stream-Cloner-macOS.dmg) | Universal (Apple Silicon & Intel) | Drag-and-drop `.dmg` installer |
+            | **macOS (Pinned)** | [**Stream-Cloner-${{ env.RELEASE_TAG }}-macOS.dmg**](https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_TAG }}/Stream-Cloner-${{ env.RELEASE_TAG }}-macOS.dmg) | Universal | Version-pinned `.dmg` installer |
+            | **Windows** | [**Stream-Cloner-Windows.exe**](https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_TAG }}/Stream-Cloner-Windows.exe) | x64 | Standalone `.exe` executable |
+            | **Windows (Pinned)** | [**Stream-Cloner-${{ env.RELEASE_TAG }}-Windows.exe**](https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_TAG }}/Stream-Cloner-${{ env.RELEASE_TAG }}-Windows.exe) | x64 | Version-pinned `.exe` executable |
+
+            ---
+            *Automated build generated by GitHub Actions for commit `${{ github.sha }}`.*
+          files: |
+            dist-release/*
+          draft: false
+          prerelease: false
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

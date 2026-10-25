@@ -1,8 +1,24 @@
 # Stream Cloner
 
+[![Build & Release Installers](https://github.com/paras97verma/stream-cloner/actions/workflows/build-installers.yml/badge.svg)](https://github.com/paras97verma/stream-cloner/actions/workflows/build-installers.yml)
+[![GitHub Releases](https://img.shields.io/github/v/release/paras97verma/stream-cloner?label=Latest%20Release&color=blue)](https://github.com/paras97verma/stream-cloner/releases/latest)
+[![macOS Download](https://img.shields.io/badge/Download-macOS%20.dmg-38bdf8?style=for-the-badge&logo=apple&logoColor=white)](https://github.com/paras97verma/stream-cloner/releases/latest/download/Stream-Cloner-macOS.dmg)
+[![Windows Download](https://img.shields.io/badge/Download-Windows%20.exe-a855f7?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/paras97verma/stream-cloner/releases/latest/download/Stream-Cloner-Windows.exe)
+
 **Stream Cloner** is a production-grade, cross-platform YouTube media studio engineered for ultra-high-resolution video (12K, 8K, 5K, 4K UHD, 1440p, 1080p at 24–240 FPS with HDR), full YouTube playlist downloads, and high-fidelity audio extraction.
 
-The application features an original, refined **Apple-inspired glassmorphism** aesthetic, automatic **dynamic stream quality discovery**, intelligent **per-item playlist fallback**, and persistent **System / Light / Dark theme management**.
+Built with a high-performance **Vue 3 + Tailwind CSS** dark glassmorphism interface and a native **Python 3.12 / PyWebView** engine with multi-threaded parallel downloads.
+
+---
+
+## 📥 Direct Downloads & Installers
+
+| Platform | Installer / Executable | Version Pinning | Architecture |
+| :--- | :--- | :--- | :--- |
+| **macOS** | [**Download `.dmg` (Latest)**](https://github.com/paras97verma/stream-cloner/releases/latest/download/Stream-Cloner-macOS.dmg) | [All Pinned Versions](https://github.com/paras97verma/stream-cloner/releases) | Universal (Apple Silicon M1-M4 & Intel x64) |
+| **Windows** | [**Download `.exe` (Latest)**](https://github.com/paras97verma/stream-cloner/releases/latest/download/Stream-Cloner-Windows.exe) | [All Pinned Versions](https://github.com/paras97verma/stream-cloner/releases) | x64 Architecture |
+
+> **Automated Builds:** Every commit pushed to `main` triggers automated GitHub Actions builds that compile, test, and release fresh version-pinned DMG and EXE installers to the [Releases page](https://github.com/paras97verma/stream-cloner/releases).
 
 ---
 
@@ -12,17 +28,12 @@ The application features an original, refined **Apple-inspired glassmorphism** a
   - Eliminates static resolution menus. Formats are inspected dynamically using live YouTube stream metadata.
   - Automatically identifies resolutions, actual frame rates (24–240 FPS), HDR variants, container types, and modern codecs (AV1, VP9, H.264).
   - Defaults to the **highest available quality** discovered for each media item.
-- **Apple-Inspired Glassmorphism Design:**
-  - Layered translucent surfaces, subtle neutral gradients, 1px specular rim highlights, and soft diffuse ambient shadows.
-  - Native system typography stack (`-apple-system`, `SF Pro Display`, `Segoe UI Variable`).
-- **Comprehensive Theme Support (System / Light / Dark):**
-  - **System theme is the default**, dynamically tracking operating system appearance changes (`prefers-color-scheme`).
-  - Seamless manual switching between System, Light, and Dark modes with instant re-styling and zero rendering flash.
-- **Robust Playlist Support:**
-  - Automatic detection of playlist query parameters (`list=...`).
-  - Interactive playlist queue drawer with individual item checkboxes, duration indicators, and batch selection controls.
-  - **Independent per-item quality resolution:** Each video in a playlist is inspected individually so items with varying maximum resolutions download at their highest possible quality without artificial downscaling.
-  - Subfolder playlist organization to avoid file clutter and accidental filename collisions.
+- **Apple-Inspired Dark Glassmorphism Design:**
+  - Modern translucent glass card aesthetics, high contrast dark theme, vibrant gradient accents, and subtle micro-animations.
+  - Native system typography stack (`Plus Jakarta Sans`, `JetBrains Mono`).
+- **Parallel Multi-Download Concurrency:**
+  - Configurable simultaneous download worker slots (1 to 5 concurrent streams).
+  - Live per-slot progress bars, speed, and ETA monitoring.
 - **High-Fidelity Audio Extraction:**
   - Uncompressed source audio extraction or high-bitrate MP3 transcoding (320 kbps Studio Master, 256 kbps, 192 kbps, 128 kbps).
 - **Safety, Reliability & Concurrency:**
