@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Stream Cloner — Standalone Installer Builder (.dmg for macOS, .exe for Windows)
+Stream Cloner - Standalone Installer Builder (.dmg for macOS, .exe for Windows)
 Usage:
     python3 scripts/build/build_installer.py
 
@@ -22,6 +22,18 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+
+# Ensure UTF-8 output encoding for Windows CLI / CI runners
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+if hasattr(sys.stderr, "reconfigure"):
+    try:
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
 
 IS_MACOS = sys.platform == "darwin"
 IS_WINDOWS = sys.platform.startswith("win")
@@ -183,16 +195,16 @@ def build_macos_dmg(app_bundle_path: Path, dmg_output_path: Path) -> None:
         ]
         subprocess.run(cmd, check=True)
 
-    print(f"[✓] Created macOS DMG installer: {dmg_output_path}")
+    print(f"[OK] Created macOS DMG installer: {dmg_output_path}")
 
 
 def main() -> None:
     print("=================================================================")
-    print("  Stream Cloner — Standalone Installer Builder (.dmg / .exe)")
+    print("  Stream Cloner - Standalone Installer Builder (.dmg / .exe)")
     print("=================================================================")
 
     icon_path = generate_app_icons()
-    print(f"[✓] Generated application icon: {icon_path}")
+    print(f"[OK] Generated application icon: {icon_path}")
 
     sep = ";" if IS_WINDOWS else ":"
     add_binaries: list[str] = []
@@ -205,7 +217,7 @@ def main() -> None:
         staged_ff = BUILD_WORK_DIR / target_name
         shutil.copy2(ffmpeg_bin, staged_ff)
         add_binaries.extend(["--add-binary", f"{staged_ff}{sep}."])
-        print(f"[✓] Bundling FFmpeg binary: {ffmpeg_bin}")
+        print(f"[OK] Bundling FFmpeg binary: {ffmpeg_bin}")
     else:
         print("[!] Warning: Standalone FFmpeg binary not found to bundle.")
 
@@ -217,7 +229,7 @@ def main() -> None:
         staged_deno = BUILD_WORK_DIR / target_deno
         shutil.copy2(deno_bin, staged_deno)
         add_binaries.extend(["--add-binary", f"{staged_deno}{sep}."])
-        print(f"[✓] Bundling Deno runtime: {deno_bin}")
+        print(f"[OK] Bundling Deno runtime: {deno_bin}")
     else:
         print("[!] Warning: Standalone Deno runtime not found to bundle.")
 
@@ -260,6 +272,18 @@ def main() -> None:
     try:
         import yt_dlp_ejs  # noqa: F401
         pyinstaller_cmd.extend(["--collect-all", "yt_dlp_ejs"])
+    except ImportError:
+        pass
+
+    try:
+        import pythonnet  # noqa: F401
+        pyinstaller_cmd.extend([
+            "--collect-all", "pythonnet",
+            "--collect-all", "clr_loader",
+            "--hidden-import", "clr",
+            "--hidden-import", "clr_loader",
+            "--hidden-import", "pythonnet",
+        ])
     except ImportError:
         pass
 
@@ -337,7 +361,7 @@ def main() -> None:
             str(ROOT_DIR / "app.py"),
         ])
         subprocess.run(pyinstaller_cmd, check=True)
-        print(f"[✓] Built standalone binary in {DIST_DIR}")
+        print(f"[OK] Built standalone binary in {DIST_DIR}")
 
 
 

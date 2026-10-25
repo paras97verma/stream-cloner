@@ -50,6 +50,9 @@ jobs:
   build-windows-exe:
     name: Build Windows EXE
     runs-on: windows-latest
+    env:
+      PYTHONIOENCODING: utf-8
+      PYTHONUTF8: '1'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
